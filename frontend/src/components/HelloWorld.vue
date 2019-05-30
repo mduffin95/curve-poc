@@ -1,6 +1,9 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+
+<button class=”Search__button” @click="callRestService()">CALL Spring Boot REST backend service</button>
+
+<h1>{{ response }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -33,10 +36,27 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  name: "hello",
+  data () {
+    return {
+      response: [],
+      errors: []
+    }
+  },
+  methods: {
+    callRestService () {
+      axios.get(`api/hello`)
+        .then(response => {
+          // JSON responses are automatically parsed.
+          this.response = response.data
+        })
+        .catch(e => {
+          this.errors.push(e)
+        })
+    }
   }
 }
 </script>
