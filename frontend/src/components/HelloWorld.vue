@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
 
-<button class=”Search__button” @click="callRestService()">CALL Spring Boot REST backend service</button>
+    <button class=”Search__button” @click="callRestService()">CALL Spring Boot REST backend service</button>
 
-<h1>{{ response }}</h1>
+    <h1>{{ response }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -39,7 +39,6 @@
 import axios from 'axios'
 
 export default {
-  name: "hello",
   data () {
     return {
       response: [],

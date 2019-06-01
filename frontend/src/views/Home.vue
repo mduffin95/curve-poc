@@ -7,6 +7,7 @@
 
 <script>
 // @ is an alias to /src
+// import Dashboard from '@/components/Dashboard.vue'
 import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
