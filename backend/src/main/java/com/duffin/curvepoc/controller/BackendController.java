@@ -1,42 +1,42 @@
 package com.duffin.curvepoc.controller;
 
+import com.duffin.curvepoc.Dto;
+import com.duffin.curvepoc.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Controller;
 
-@RestController()
-@RequestMapping("/api")
+import java.util.Random;
+
+@EnableScheduling
+@Controller
 public class BackendController {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(BackendController.class);
 
-    public static final String HELLO_TEXT = "Hello from Spring Boot Backend!";
+    @Autowired
+    private SimpMessagingTemplate template;
 
-//    @Autowired
-//    private UserRepository userRepository;
+    private Random rand;
 
-    @RequestMapping(path = "/hello")
-    public @ResponseBody String sayHello() {
-        LOG.info("GET called on /hello resource");
-        return HELLO_TEXT;
+    public BackendController() {
+        rand = new Random();
     }
 
-//    @RequestMapping(path = "/user", method = RequestMethod.POST)
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public @ResponseBody long addNewUser (@RequestParam String firstName, @RequestParam String lastName) {
-//        User user = new User(firstName, lastName);
-//        userRepository.save(user);
-//
-//        LOG.info(user.toString() + " successfully saved into DB");
-//
-//        return user.getId();
-//    }
-//
-//    @GetMapping(path="/user/{id}")
-//    public @ResponseBody User getUserById(@PathVariable("id") long id) {
-//        LOG.info("Reading user with id " + id + " from database.");
-//        return userRepository.findById(id).get();
-//    }
+    @Scheduled(fixedRate = 5000)
+    public void dataStream() throws Exception {
+        LOG.debug("Sending data");
+        Dto dto = new Dto();
+
+        for (String p: Point.points) {
+            Point point = new Point(p, rand.nextInt(100));
+            dto.values.add(point);
+        }
+        this.template.convertAndSend("/topic/data", dto);
+    }
 }
