@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Dto {
-    public List<Point> values;
+    public List<Bond> values;
 
     public Dto() {
         values = new ArrayList<>();
