@@ -15,8 +15,9 @@ const vega = require('vega');
 export default {
   data () {
     return {
-      response: [],
+      data: [],
       errors: [],
+      connected: false
     }
   },
   methods: {
@@ -33,25 +34,33 @@ export default {
     connect() {
       this.socket = new SockJS("http://localhost:8088/gs-guide-websocket");
       this.stompClient = Stomp.over(this.socket);
-      this.stompClient.connect(
-        {},
-        frame => {
-          this.connected = true;
-          // console.log(frame);
-          this.stompClient.subscribe("/topic/data", tick => {
-            // console.log(tick);
-            // this.received_messages.push(JSON.parse(tick.body).values);
-            var data = JSON.parse(tick.body).values;
-            console.log(data);
-            let changeSet = vega.changeset().remove(() => true).insert(data);
-            window.view.change('table', changeSet).run()
-          });
-        },
-        error => {
-          console.log(error);
-          this.connected = false;
+      this.stompClient.connect({}, frame => {
+        this.connected = true;
+        this.stompClient.subscribe("/app/init"), msg => {
+          console.log("INIT RECEIVED")
+          this.data = JSON.parse(msg.body).values;
+          let changeSet = vega.changeset().remove(() => true).insert(this.data);
+          window.view.change('table', changeSet).run()
         }
-      );
+        // console.log(frame);
+        this.stompClient.subscribe("/topic/data", tick => {
+          // console.log(tick);
+          // this.received_messages.push(JSON.parse(tick.body).values);
+          let data = JSON.parse(tick.body).values;
+          console.log(this.data);
+          let maturities = []
+          for (var key in data) {
+            maturities.push(data[key].maturityDate)
+          }
+          let changeSet = vega.changeset().remove(x => {
+            maturities.includes(x.maturityDate)
+          }).insert(data);
+          window.view.change('table', changeSet).run()
+        });
+      }, error => {
+        console.log(error);
+        this.connected = false;
+      });
     },
     disconnect() {
       if (this.stompClient) {
